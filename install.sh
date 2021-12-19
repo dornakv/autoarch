@@ -9,8 +9,9 @@ efi_device="${device}1"     # this is different for nvme and non-nvme drives TOD
 root_device="${device}2"
 agreed=false                # If set to true, will skip confirmation at the begining
 
-base_system=( base base-devel linux linux-firmware neovim networkmanager) # Check archwiki installation guide what is currently needed
+base_system=( base base-devel linux linux-firmware neovim) # Check archwiki installation guide what is currently needed
 # base-devel contains sudo, pacman, gcc and other useful tools
+# network is installed and set up in set_network function
 
 
 # Script variables, do not change please
@@ -110,6 +111,10 @@ base_install() {
 # Generate fstab file
 gen_fstab() {
     genfstab -U /mnt >> /mnt/etc/fstab
+}
+
+set_network() {
+    pacstrap /mnt git networkmanager --noconfirm --needed
 }
 
 #check_archiso
