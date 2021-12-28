@@ -17,6 +17,7 @@ base_system=( base base-devel linux linux-firmware neovim) # Check archwiki inst
 # base-devel contains sudo, pacman, gcc and other useful tools
 # network is installed and set up in set_network function
 
+dotfiles="https://github.com/dornakv/dotfiles.git"
 
 # Script variables, do not change please
 WARNINGC='\033[0;31m'
@@ -108,12 +109,21 @@ mount_partitions() {
     mount -t ext4 ${root_device} /mnt
 
     echo "Mounting efi partition to /mnt/boot"
-    mkdir -p /mnt/boot
-    mount -t vfat ${efi_device} /mnt/boot
+    mkdir -p /mnt/boot/efi
+    mount -t vfat ${efi_device} /mnt/boot/efi
 
     echo "Mounting extra partition" # If we mount it now, it gets auto generated into fstab with genfstab???
     mkdir -p /mnt/${aditional_mount_point}
     mount ${aditional_mount_device} /mnt/${aditional_mount_point}
+}
+
+# Will be copied when using pacstrap to the system
+set_mirrors(){
+    echo "Selecting optimal mirrors using reflector"
+    pacman -Syy
+    pacman -S --noconfirm
+
+    reflector -l 10 -n 12 --save /etc/pacman.d/mirrorlist
 }
 
 # Installing base system to disk
@@ -138,11 +148,41 @@ chroot() {
 
 set_network() {
      pacman -S git networkmanager --noconfirm --needed
+     systemctl enable NetworkManager.service
 }
 
+# Set language, formats, timezone, keyboard..
 set_locale() {
-    ln -sf /usr/share/zoneinfo/${time_zone} /etc/localtime
     hwclock --systohc                   # Set the Hardware Clock from the System Clock and generate /etc/adjtime
+    sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    locale-gen
+    timedatectl --no-ask-password set-timezone ${time_zone}
+    timedatectl --no-ask-password set-ntp 1
+    localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_TIME="en_US.UTF-8"
+    localectl --no-ask-password set-keymap us
+}
+
+set_hostname() {
+    printf "%s\n" "${hostname}" > /etc/hostname
+    printf "%-15s %s\n" "127.0.0.1" "localhost" > /etc/hosts
+    printf "%-15s %-15s %-15s %-15s\n" "::1" "localhost" "ip6-localhost" "ip6-loopback" >> /etc/hosts
+    printf "%-15s %-15s %-15s %-15s\n" "127.0.1.1" "{$hostname}" "${hostname}" >> /etc/hosts
+}
+
+set_grub() {
+    pacman -S grub efibootmgr --noconfirm --needed
+    grub-install --targer=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi
+    grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+enable_multilib() {
+    sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+    pacman -Sy --noconfirm
+}
+
+install_de() {
+    pacman -S xorg --noconfirm --needed
+    pacman -S sxhkd --noconfirm --needed
 }
 
 if [ "$1" != "--chroot" ]; then
@@ -155,11 +195,16 @@ if [ "$1" != "--chroot" ]; then
     check_settings
     #prep_device
     #mount_partitions
+    set_mirrors
     essential_install
     #gen_fstab
     chroot
 else
     set_network
     set_locale
+    set_hostname
+    set_grub
+    enable_multilib
+    install_de
 
 fi
