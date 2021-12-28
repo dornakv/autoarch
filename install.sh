@@ -129,16 +129,15 @@ gen_fstab() {
     genfstab -U /mnt >> /mnt/etc/fstab
 }
 
-# We will need network when we chroot?????????
-set_network() {
-    pacstrap /mnt git networkmanager --noconfirm --needed
-}
-
 chroot() {
     cp "$0" /mnt/root/install.sh        # Copy this script to our new installation
     chmod 755 /mnt/root/install.sh      # The script needs to be executable
     arch-chroot /mnt /root/install.sh --chroot
     rm -f /mnt/root/install.sh
+}
+
+set_network() {
+     pacman -S git networkmanager --noconfirm --needed
 }
 
 set_locale() {
@@ -158,9 +157,9 @@ if [ "$1" != "--chroot" ]; then
     #mount_partitions
     essential_install
     #gen_fstab
-    #set_network
     chroot
 else
+    set_network
     set_locale
 
 fi
