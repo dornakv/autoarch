@@ -3,11 +3,15 @@
 # Settings:
 hostname="scs_pc"
 username="scoks"
+password="root"             # keep empty, will be asked at the start of the script
 swapsize="auto"             # "auto" sets it to the MemTotal in /proc/meminfo (amount of detected RAM)
 device="/dev/sdb"           # Drive for install
 efi_device="${device}1"     # this is different for nvme and non-nvme drives TODO: should be automated based on device string
 root_device="${device}2"
 agreed=false                # If set to true, will skip confirmation at the begining
+aditional_mount_device="/dev/sda1"
+aditional_mount_point="/mnt/kingpin"
+time_zone="Europe/Prague"   # timedatectl list-timezones
 
 base_system=( base base-devel linux linux-firmware neovim) # Check archwiki installation guide what is currently needed
 # base-devel contains sudo, pacman, gcc and other useful tools
@@ -51,10 +55,16 @@ set_SWAP() {
     fi
 }
 
+set_password() {
+    if [ -z "${password}" ]; then
+        read -s -p "Input a password for the user and the root: " password
+    fi
+}
+
 # Show user the selected settings, if user did not agree yet, ask for confirmation
 check_settings() {
     echo -e "System will be installed to ${IMPORTANTC}${device}${NC} ${WARNINGC}(WILL BE FORMATED!)${NC}"
-    echo -e "Swap will set to ${IMPORTANTC}${swapsize} mB${NC}"
+    echo -e "Swap will be set to ${IMPORTANTC}${swapsize} mB${NC}"
     if $agreed ; then
         return
     fi
@@ -100,31 +110,57 @@ mount_partitions() {
     echo "Mounting efi partition to /mnt/boot"
     mkdir -p /mnt/boot
     mount -t vfat ${efi_device} /mnt/boot
+
+    echo "Mounting extra partition" # If we mount it now, it gets auto generated into fstab with genfstab???
+    mkdir -p /mnt/${aditional_mount_point}
+    mount ${aditional_mount_device} /mnt/${aditional_mount_point}
 }
 
 # Installing base system to disk
-base_install() {
+essential_install() {
     echo "Installing base system to disk"
+    echo ${pacstrap_packages}
     pacstrap /mnt ${pacstrap_packages} --noconfirm --needed
 }
 
 # Generate fstab file
 gen_fstab() {
+    echo "Generating fstab to /mnt/etc/fstab"
     genfstab -U /mnt >> /mnt/etc/fstab
 }
 
+# We will need network when we chroot?????????
 set_network() {
     pacstrap /mnt git networkmanager --noconfirm --needed
 }
 
-#check_archiso
-#check_root
-check_UEFI
-set_SWAP
-#timedatectl set-ntp true # Set up system clock
-check_settings
-prep_device
-mount_partitions
+chroot() {
+    cp "$0" /mnt/root/install.sh        # Copy this script to our new installation
+    chmod 755 /mnt/root/install.sh      # The script needs to be executable
+    arch-chroot /mnt /root/install.sh --chroot
+    rm -f /mnt/root/install.sh
+}
 
-base_install
-gen_fstab
+set_locale() {
+    ln -sf /usr/share/zoneinfo/${time_zone} /etc/localtime
+    hwclock --systohc                   # Set the Hardware Clock from the System Clock and generate /etc/adjtime
+}
+
+if [ "$1" != "--chroot" ]; then
+    #check_archiso
+    #check_root
+    check_UEFI
+    set_SWAP
+    set_password
+    #timedatectl set-ntp true # Set up system clock
+    check_settings
+    #prep_device
+    #mount_partitions
+    essential_install
+    #gen_fstab
+    #set_network
+    chroot
+else
+    set_locale
+
+fi
