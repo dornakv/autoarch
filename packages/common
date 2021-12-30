@@ -1,0 +1,2 @@
+base-devel          # contains sudo, pacman, gcc and other useful tools
+

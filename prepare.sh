@@ -209,4 +209,5 @@ else
     set_hostname
     set_grub
     enable_multilib
+    source install.sh
 fi
