@@ -13,7 +13,7 @@ aditional_mount_device="/dev/sda1"
 aditional_mount_point="/mnt/kingpin"
 time_zone="Europe/Prague"   # timedatectl list-timezones
 
-base_system=( base base-devel linux linux-firmware neovim) # Check archwiki installation guide what is currently needed
+base_system=( base linux linux-firmware) # Check archwiki installation guide what is currently needed
 # base-devel contains sudo, pacman, gcc and other useful tools
 # network is installed and set up in set_network function
 
@@ -140,10 +140,10 @@ gen_fstab() {
 }
 
 chroot() {
-    cp "$0" /mnt/root/install.sh        # Copy this script to our new installation
-    chmod 755 /mnt/root/install.sh      # The script needs to be executable
-    arch-chroot /mnt /root/install.sh --chroot
-    rm -f /mnt/root/install.sh
+    cp "$0" /mnt/root/prepare.sh        # Copy this script to our new installation
+    chmod 755 /mnt/root/prepare.sh      # The script needs to be executable
+    arch-chroot /mnt /root/prepare.sh --chroot
+    rm -f /mnt/root/prepare.sh
 }
 
 set_network() {
@@ -180,24 +180,28 @@ enable_multilib() {
     pacman -Sy --noconfirm
 }
 
-install_de() {
-    pacman -S xorg --noconfirm --needed
-    pacman -S sxhkd --noconfirm --needed
+create_user() {
+    mkdir -p /etc/sudoers.d/
+    chmod 750 /etc/sudoers.d/
+    echo "root ALL=(ALL) ALL" > /etc/sudoers.d/root
+    echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
+    useradd -m -G wheel -s /bin/bash ${username}
+    echo ${password} | passwd --stdin ${username}
 }
 
 if [ "$1" != "--chroot" ]; then
-    #check_archiso
-    #check_root
+    check_archiso
+    check_root
     check_UEFI
     set_SWAP
     set_password
-    #timedatectl set-ntp true # Set up system clock
+    timedatectl set-ntp true # Set up system clock
     check_settings
-    #prep_device
-    #mount_partitions
+    prep_device
+    mount_partitions
     set_mirrors
     essential_install
-    #gen_fstab
+    gen_fstab
     chroot
 else
     set_network
@@ -205,6 +209,4 @@ else
     set_hostname
     set_grub
     enable_multilib
-    install_de
-
 fi
