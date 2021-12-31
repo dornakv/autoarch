@@ -116,7 +116,7 @@ mount_partitions() {
 
 update(){
     echo "Updating"
-    pacman -Syyu --noconfirm
+    pacman -Syy --noconfirm
 }
 
 # Installing base system to disk
