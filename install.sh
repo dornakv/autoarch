@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ./helpers/lib.sh
+source "$(dirname "$0")/helpers/lib.sh"
 
 install_yay() {
     cd /tmp
