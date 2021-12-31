@@ -5,7 +5,7 @@ source ./helpers/lib.sh
 # Settings:
 hostname="scs_pc"
 username="scoks"
-password="root"             # keep empty, will be asked at the start of the script
+password=""                 # keep empty, will be asked at the start of the script
 dotfiles_url="https://github.com/dornakv/dotfiles.git"
 dotfiles_dir="/home/${username}/dotfiles"
 swapsize="auto"             # "auto" sets it to the MemTotal in /proc/meminfo (amount of detected RAM)
