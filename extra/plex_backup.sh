@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-source ../helpers/lib.sh
+source "$(dirname "$0")/../helpers/lib.sh
 
-plex_data_dir="/var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/"
+plex_data_dir="/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/"
 backup_location="/mnt/kingpin/Backup/plex.tar.gz"
 
 check_root
