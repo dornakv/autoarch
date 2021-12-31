@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+source ./helpers/lib.sh
+
 
 # Settings:
 hostname="scs_pc"
@@ -20,23 +22,12 @@ base_system=( base linux linux-firmware) # Check archwiki installation guide wha
 dotfiles="https://github.com/dornakv/dotfiles.git"
 
 # Script variables, do not change please
-WARNINGC='\033[0;31m'
-IMPORTANTC='\033[0;36m'
-NC='\033[0m'                # No Color
 DEVICESTR="${IMPORANTC}"
 
 # Check if running from archiso
 check_archiso() {
     if [ ! "$(uname -n)" = "archiso" ]; then
         echo "I can only be run from the Archlinux live medium!"
-        exit -1
-    fi
-}
-
-# Check if user is root
-check_root() {
-if [ ! "$(id -u)" = 0 ]; then
-        echo "I need to run as root!"
         exit -1
     fi
 }

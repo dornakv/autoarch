@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-
-check_root() {
-if [ ! "$(id -u)" = 0 ]; then
-        echo "I need to run as root!"
-        exit -1
-    fi
-}
+source ./helpers/lib.sh
 
 install_yay() {
     cd /tmp
