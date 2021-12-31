@@ -58,6 +58,7 @@ set_password() {
 
 # Show user the selected settings, if user did not agree yet, ask for confirmation
 check_settings() {
+    lsblk
     echo -e "System will be installed to ${IMPORTANTC}${device}${NC} ${WARNINGC}(WILL BE FORMATED!)${NC}"
     echo -e "Swap will be set to ${IMPORTANTC}${swapsize} mB${NC}"
     if $agreed ; then
