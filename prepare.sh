@@ -114,13 +114,9 @@ mount_partitions() {
     mount ${aditional_mount_device} /mnt/${aditional_mount_point}
 }
 
-# Will be copied when using pacstrap to the system
-set_mirrors(){
-    echo "Selecting optimal mirrors using reflector"
-    pacman -Syy
-    pacman -S --noconfirm
-
-    reflector -l 10 -n 12 --save /etc/pacman.d/mirrorlist
+update(){
+    echo "Updating"
+    pacman -Syyu --noconfirm
 }
 
 # Installing base system to disk
@@ -200,7 +196,7 @@ if [ "$1" != "--chroot" ]; then
     check_settings
     prep_device
     mount_partitions
-#    set_mirrors
+    update
     essential_install
     gen_fstab
     chroot
