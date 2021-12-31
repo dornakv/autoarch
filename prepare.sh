@@ -200,7 +200,7 @@ if [ "$1" != "--chroot" ]; then
     check_settings
     prep_device
     mount_partitions
-    set_mirrors
+#    set_mirrors
     essential_install
     gen_fstab
     chroot
