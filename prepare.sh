@@ -208,5 +208,5 @@ else
     enable_multilib
     create_user
     get_dotfiles
-    source install.sh
+    source "$(dirname "$0")/install.sh"
 fi
