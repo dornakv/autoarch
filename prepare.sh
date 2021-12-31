@@ -123,7 +123,7 @@ update(){
 essential_install() {
     echo "Installing base system to disk"
     echo ${pacstrap_packages}
-    pacstrap /mnt ${pacstrap_packages} --noconfirm --needed
+    pacstrap /mnt ${pacstrap_packages}
 }
 
 # Generate fstab file
