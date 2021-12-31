@@ -52,6 +52,7 @@ set_SWAP() {
 set_password() {
     if [ -z "${password}" ]; then
         read -s -p "Input a password for the user and the root: " password
+        echo -e "\n"
     fi
 }
 
