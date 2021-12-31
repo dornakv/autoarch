@@ -137,10 +137,10 @@ gen_fstab() {
 }
 
 chroot() {
-    cp "$0" /mnt/root/prepare.sh        # Copy this script to our new installation
-    chmod 755 /mnt/root/prepare.sh      # The script needs to be executable
-    arch-chroot /mnt /root/prepare.sh --chroot
-    rm -f /mnt/root/prepare.sh
+    cp "$0" /mnt/prepare.sh        # Copy this script to our new installation
+    chmod 755 /mnt/prepare.sh      # The script needs to be executable
+    arch-chroot /mnt /prepare.sh --chroot
+    rm -f /mnt/prepare.sh
 }
 
 set_network() {
