@@ -176,7 +176,7 @@ create_user() {
     chmod 750 /etc/sudoers.d/
     echo "root ALL=(ALL) ALL" > /etc/sudoers.d/root
     echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
-    useradd -m -G wheel -s /bin/bash ${username}
+    useradd --create-home --groups wheel --shell /bin/bash ${username}
     echo ${password} | passwd --stdin ${username}
 }
 
