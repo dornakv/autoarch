@@ -77,6 +77,8 @@ check_settings() {
 prep_device() {
     echo -e "Formating disk ${IMPORTANTC}${device}${NC}"
     # disk preparation
+    wipefs -af ${device}
+
     sgdisk -Z ${device}             # Zap disk
     sgdisk -a 2048 -o ${device}     # new gpt disk 2048 alignment
 
