@@ -6,6 +6,8 @@ source ./helpers/lib.sh
 hostname="scs_pc"
 username="scoks"
 password="root"             # keep empty, will be asked at the start of the script
+dotfiles_url="https://github.com/dornakv/dotfiles.git"
+dotfiles_dir="/home/${username}/dotfiles"
 swapsize="auto"             # "auto" sets it to the MemTotal in /proc/meminfo (amount of detected RAM)
 device="/dev/sdb"           # Drive for install
 efi_device="${device}1"     # this is different for nvme and non-nvme drives TODO: should be automated based on device string
@@ -180,6 +182,10 @@ create_user() {
     echo ${password} | passwd --stdin ${username}
 }
 
+get_dotfiles(){
+    git clone ${dotfiles_url} ${dotfiles_dir}
+}
+
 if [ "$1" != "--chroot" ]; then
     check_archiso
     check_root
@@ -200,5 +206,7 @@ else
     set_hostname
     set_grub
     enable_multilib
+    create_user
+    get_dotfiles
     source install.sh
 fi
