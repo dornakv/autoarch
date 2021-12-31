@@ -94,7 +94,7 @@ prep_device() {
 
     echo -e "Creating filesystems on ${IMPORTANTC}${device}${NC}"
     mkfs.vfat -F32 -n "UEFISYS" ${efi_device}
-    mkfs.ext4 -L -n "ROOT" ${root_device}
+    mkfs.ext4 -L "ROOT" ${root_device}
 }
 
 # Mounting partitions
