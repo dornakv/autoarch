@@ -5,7 +5,7 @@ source "$(dirname "$0")/helpers/lib.sh"
 # Settings:
 hostname="scs_pc"
 username="scoks"
-password=""                 # keep empty, will be asked at the start of the script
+password=""                 # keep empty, will be asked at the start of the script TODO: Not working yet, for now password is set interactively!
 dotfiles_url="https://github.com/dornakv/dotfiles.git"
 dotfiles_dir="/home/${username}/dotfiles"
 swapsize="auto"             # "auto" sets it to the MemTotal in /proc/meminfo (amount of detected RAM)
@@ -179,7 +179,7 @@ create_user() {
     echo "root ALL=(ALL) ALL" > /etc/sudoers.d/root
     echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
     useradd --create-home --groups wheel --shell /bin/bash ${username}
-    echo ${password} | passwd --stdin ${username}
+    passwd ${username}
 }
 
 get_dotfiles(){
@@ -191,7 +191,7 @@ if [ "$1" != "--chroot" ]; then
     check_root
     check_UEFI
     set_SWAP
-    set_password
+#    set_password
     timedatectl set-ntp true # Set up system clock
     check_settings
     prep_device
